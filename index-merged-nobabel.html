@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Neptune Ops Influencer Intelligence Platform - Demo" />
+  <title>Neptune Ops - Influencer Intelligence (Merged, No Babel)</title>
+  <!-- React + ReactDOM (no Babel) -->
+  <script crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html,body,#root{height:100%}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);z-index:9999}
+    .spinner{width:56px;height:56px;border-radius:50%;border:6px solid rgba(255,255,255,.35);border-top-color:#fff;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+  <div id="loading"><div class="spinner"></div></div>
+  <div id="root"></div>
+
+  <script>
+    (function(){ var el=document.getElementById('loading'); function hide(){ if(el) el.style.display='none'; } 
+      window.addEventListener('DOMContentLoaded', function(){ setTimeout(hide, 500); });
+      window.addEventListener('load', function(){ setTimeout(hide, 500); });
+      setTimeout(hide, 2000);
+    })();
+  </script>
+
+  <script>
+    const e = React.createElement;
+
+    // Icons (SVG via createElement)
+    function IconSearch(props){ return e('svg', {className: props.className || 'w-4 h-4', fill:'none', stroke:'currentColor', strokeWidth:'2', viewBox:'0 0 24 24'},
+      e('circle',{cx:'11',cy:'11',r:'8'}),
+      e('path',{d:'m21 21-4.35-4.35'})
+    );}
+    function IconUsers(props){ return e('svg', {className: props.className || 'w-4 h-4', fill:'none', stroke:'currentColor', strokeWidth:'2', viewBox:'0 0 24 24'},
+      e('path',{d:'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'}),
+      e('circle',{cx:'9',cy:'7',r:'4'})
+    );}
+    function IconTarget(props){ return e('svg', {className: props.className || 'w-4 h-4', fill:'none', stroke:'currentColor', strokeWidth:'2', viewBox:'0 0 24 24'},
+      e('circle',{cx:'12',cy:'12',r:'10'}),
+      e('circle',{cx:'12',cy:'12',r:'6'}),
+      e('circle',{cx:'12',cy:'12',r:'2'})
+    );}
+
+    // Data (salvaged & minimal to replace the truncated section)
+    const PEOPLE = [
+      {
+        name: "Ted Cruz",
+        party: "Republican",
+        position: "U.S. Senator (TX) & Commerce Committee Chair",
+        influences: [
+          { name:"Aaron Reitz", role:"Chief of Staff", timeframe:"2024–Present" },
+          { name:"Omri Ceren", role:"Sr. Advisor (Policy & Comms)", timeframe:"2025–Present" }
+        ]
+      },
+      {
+        name: "Kyrsten Sinema",
+        party: "Independent",
+        position: "U.S. Senator (AZ)",
+        influences: [
+          { name:"Chief of Staff (Example)", role:"Chief of Staff", timeframe:"2023–Present" }
+        ]
+      }
+    ];
+
+    function Badge(children){ return e('span',{className:'inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100'}, children); }
+
+    function PersonCard(props){
+      const p = props.person;
+      return e('div',{className:'bg-white rounded-2xl shadow hover:shadow-lg transition p-5'},
+        e('div',{className:'flex items-start justify-between'},
+          e('div',null,
+            e('h3',{className:'text-lg font-semibold'}, p.name),
+            e('p',{className:'text-slate-600'}, p.position),
+            e('div',{className:'mt-2'}, Badge([ e(IconUsers,{className:'w-3 h-3', key:'i'}), p.party ]))
+          ),
+          e('div',{className:'text-indigo-500'}, e(IconTarget,{className:'w-6 h-6'}))
+        ),
+        e('div',{className:'mt-4'},
+          e('p',{className:'text-sm font-medium text-slate-700 mb-1'}, 'Influences'),
+          e('ul',{className:'space-y-2'},
+            p.influences.map(function(inf,i){
+              return e('li',{key:i,className:'text-sm text-slate-700 bg-slate-50 border border-slate-100 rounded-lg p-2'},
+                e('span',{className:'font-medium'}, inf.name),' — ', inf.role, ' ',
+                e('span',{className:'text-slate-500'}, '(',inf.timeframe,')')
+              );
+            })
+          )
+        )
+      );
+    }
+
+    function App(){
+      const ReactRef = React; // avoid minifier confusion
+      const useState = ReactRef.useState, useMemo = ReactRef.useMemo;
+      const _useState = useState(""), q = _useState[0], setQ = _useState[1];
+
+      const filtered = useMemo(function(){
+        const t = (q||"").trim().toLowerCase();
+        if(!t) return PEOPLE;
+        return PEOPLE.filter(function(p){
+          return (p.name + " " + p.party + " " + p.position).toLowerCase().includes(t);
+        });
+      }, [q]);
+
+      return e('div',{className:'min-h-full bg-gradient-to-br from-indigo-400 to-purple-500'},
+        e('header',{className:'bg-white/80 backdrop-blur sticky top-0 z-10'},
+          e('div',{className:'max-w-6xl mx-auto px-4 py-3 flex items-center gap-3'},
+            e('div',{className:'w-8 h-8 rounded-lg bg-indigo-600'}),
+            e('h1',{className:'text-lg font-semibold'}, 'Neptune Ops — Influencer Intelligence (Demo)'),
+            e('div',{className:'ml-auto relative w-80 max-w-full'},
+              e('input',{
+                value:q, onInput:function(ev){ setQ(ev.target.value); },
+                placeholder:'Search people or roles...',
+                className:'w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-400'
+              }),
+              e(IconSearch,{className:'w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400'})
+            )
+          )
+        ),
+        e('main',{className:'max-w-6xl mx-auto px-4 py-8'},
+          e('div',{className:'grid gap-4 sm:grid-cols-2 lg:grid-cols-3'},
+            filtered.map(function(p){ return e(PersonCard,{key:p.name, person:p}); })
+          ),
+          filtered.length===0 ? e('p',{className:'text-white/90 text-center mt-12'}, 'No results. Try a different search.') : null
+        ),
+        e('footer',{className:'text-white/80 text-sm text-center py-6'}, 'Demo only — replace dataset with your own.')
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(e(App));
+  </script>
+</body>
+</html>
